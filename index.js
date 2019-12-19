@@ -40,8 +40,30 @@ class Airplane {
         + It should return a string with `name` and `age`. Example: "Mary, 50"
 */
 
-class Person {
+class Person
+{
+  constructor(s_Name, i_Age)
+  {
+    this.name = s_Name;
+    this.age = i_Age;
+    this.stomach = [];
+  }
 
+  eat(s_Food)
+  {
+    if (this.stomach.length < 10)
+      this.stomach.push(s_Food);
+  }
+
+  poop()
+  {
+    this.stomach = [];
+  }
+
+  toString()
+  {
+    return `${this.name}, ${this.age}`;
+  }
 }
 
 /*
@@ -58,8 +80,37 @@ class Person {
         + The `drive` method should return a string "I ran out of fuel at x miles!" x being `odometer`.
 */
 
-class Car {
+class Car
+{
+  constructor(s_Model, i_MilesPerGallon)
+  {
+    this.model = s_Model;
+    this.milesPerGallon = i_MilesPerGallon;
+    this.tank = 0;
+    this.odometer = 0;
+  }
 
+  fill (f_Gallons)
+  {
+    this.tank += f_Gallons;
+  }
+
+  drive (f_Distance)
+  {
+    let f_LengthCanDrive = this.tank * this.milesPerGallon;
+
+    if (f_LengthCanDrive < f_Distance)
+    {
+      this.odometer += f_LengthCanDrive;
+      this.tank = 0;
+      return `I ran out of fuel at ${this.odometer} miles!`;
+    }
+    else
+    {
+      this.odometer += f_Distance;
+      this.tank -= f_Distance / this.milesPerGallon;
+    }
+  }
 }
 
 /*
@@ -74,8 +125,19 @@ class Car {
         + Speaking should return a phrase `Hello my name is {name}, I am from {location}`.
         + {name} and {location} of course come from the instance's own properties.
 */
-class Lambdasian {
+class Lambdasian
+{
+  constructor(a_Args)
+  {
+    this.name = a_Args["name"];
+    this.age = a_Args["age"];
+    this.location = a_Args["location"];
+  }
 
+  speak()
+  {
+    return `Hello, my name is ${this.name}, I am from ${this.location}`;
+  }
 }
 
 /*
@@ -92,8 +154,51 @@ class Lambdasian {
         + `demo` receives a `subject` string as an argument and returns the phrase 'Today we are learning about {subject}' where subject is the param passed in.
         + `grade` receives a `student` object and a `subject` string as arguments and returns '{student.name} receives a perfect score on {subject}'
 */
-class Instructor {
 
+var i_Seed = 1;
+function mGet(i_Max)
+{
+  let f_Gen = Math.sin(i_Seed++) * i_Max;
+  if (f_Gen < 0)
+    f_Gen *= -1;
+  return f_Gen;
+}
+function sleep(ms)
+{
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+class Instructor extends Lambdasian
+{
+  constructor(a_Args)
+  {
+    super(a_Args);
+    this.specialty = a_Args["specialty"];
+    this.favLanguage = a_Args["favLanguage"];
+    this.catchPhrase = a_Args["catchPhrase"];
+  }
+
+  demo (s_Subject)
+  {
+    return `Today we are learning about ${s_Subject}`;
+  }
+
+  grade (o_Student, s_Subject)
+  {
+    return `${o_Student.name} receives a perfect score on ${s_Subject}`;
+  }
+
+  modStudentGrade(o_Student)
+  {
+    let i_PredFactor = Math.round(mGet(35));
+
+    o_Student.i_Grade = (mGet(300) < 200) ? (o_Student.i_Grade + i_PredFactor) : (o_Student.i_Grade - i_PredFactor);
+
+    if (o_Student.i_Grade > 100)
+      o_Student.i_Grade = 100;
+    else if (o_Student.i_Grade < 0)
+      o_Student.i_Grade = 0;
+  }
 }
 
 /*
@@ -111,8 +216,51 @@ class Instructor {
         + `PRAssignment` a method that receives a subject as an argument and returns `student.name has submitted a PR for {subject}`
         + `sprintChallenge` similar to PRAssignment but returns `student.name has begun sprint challenge on {subject}`
 */
-class Student {
+class Student extends Lambdasian
+{
+  constructor(a_Args)
+  {
+    super(a_Args);
+    this.previousBackground = a_Args["previousBackground"];
+    this.className = a_Args["className"];
+    this.favSubjects = a_Args["favSubjects"];
+    this.i_Grade = 50;
+  }
 
+  listSubjects()
+  {
+    let s_Subs = "";
+    this.favSubjects.forEach(i =>
+      {
+        s_Subs += i + ", ";
+      });
+    
+    return s_Subs;
+  }
+
+  PRAssignment(s_Subject)
+  {
+    return `${this.name} has submitted a PR for ${s_Subject}`;
+  }
+
+  sprintChallenge(s_Subject)
+  {
+    return `${this.name} has begun sprint challenge on ${s_Subject}`;
+  }
+
+  async graduate(o_Instructor)
+  {
+    while (this.i_Grade < 70)
+    {
+      await sleep(2000);
+      console.log("Student's grade too low, recalculating grades..");
+      o_Instructor.modStudentGrade(this);
+      console.log("Trying " + this.i_Grade);
+    }
+    console.log("Congratulations!");
+
+    return "Congratulations!";
+  }
 }
 
 /*
@@ -128,8 +276,24 @@ class Student {
         + `standUp` a method that takes in a slack channel and returns `{name} announces to {channel}, @channel standy times!`
         + `debugsCode` a method that takes in a student object and a subject and returns `{name} debugs {student.name}'s code on {subject}`
 */
-class ProjectManager {
+class ProjectManager extends Instructor
+{
+  constructor(a_Args)
+  {
+    super(a_Args);
+    this.gradClassName = a_Args["gradClassName"];
+    this.favInstructor = a_Args["favInstructor"];
+  }
 
+  standUp(s_Channel)
+  {
+    return `${this.name} announces to ${s_Channel}, @channel standy times!`;
+  }
+
+  debugsCode(o_Student, s_Subject)
+  {
+    return `${this.name} debugs ${o_Student.name}'s code on ${s_Subject}`;
+  }
 }
 
 /*
