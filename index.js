@@ -154,6 +154,20 @@ class Lambdasian
         + `demo` receives a `subject` string as an argument and returns the phrase 'Today we are learning about {subject}' where subject is the param passed in.
         + `grade` receives a `student` object and a `subject` string as arguments and returns '{student.name} receives a perfect score on {subject}'
 */
+
+var i_Seed = 1;
+function mGet(i_Max)
+{
+  let f_Gen = Math.sin(i_Seed++) * i_Max;
+  if (f_Gen < 0)
+    f_Gen *= -1;
+  return f_Gen;
+}
+function sleep(ms)
+{
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class Instructor extends Lambdasian
 {
   constructor(a_Args)
@@ -172,6 +186,18 @@ class Instructor extends Lambdasian
   grade (o_Student, s_Subject)
   {
     return `${o_Student.name} receives a perfect score on ${s_Subject}`;
+  }
+
+  modStudentGrade(o_Student)
+  {
+    let i_PredFactor = Math.round(mGet(35));
+
+    o_Student.i_Grade = (mGet(300) < 200) ? (o_Student.i_Grade + i_PredFactor) : (o_Student.i_Grade - i_PredFactor);
+
+    if (o_Student.i_Grade > 100)
+      o_Student.i_Grade = 100;
+    else if (o_Student.i_Grade < 0)
+      o_Student.i_Grade = 0;
   }
 }
 
@@ -198,6 +224,7 @@ class Student extends Lambdasian
     this.previousBackground = a_Args["previousBackground"];
     this.className = a_Args["className"];
     this.favSubjects = a_Args["favSubjects"];
+    this.i_Grade = 50;
   }
 
   listSubjects()
@@ -219,6 +246,20 @@ class Student extends Lambdasian
   sprintChallenge(s_Subject)
   {
     return `${this.name} has begun sprint challenge on ${s_Subject}`;
+  }
+
+  async graduate(o_Instructor)
+  {
+    while (this.i_Grade < 70)
+    {
+      await sleep(2000);
+      console.log("Student's grade too low, recalculating grades..");
+      o_Instructor.modStudentGrade(this);
+      console.log("Trying " + this.i_Grade);
+    }
+    console.log("Congratulations!");
+
+    return "Congratulations!";
   }
 }
 
